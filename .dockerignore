@@ -1,0 +1,165 @@
+# ============================================
+# Crypto Futures Signal System - .dockerignore
+# ============================================
+# Exclude files not needed inside Docker containers
+
+# ============================================
+# Documentation (not needed in container)
+# ============================================
+*.md
+docs/
+CLAUDE.md
+README.md
+COMMANDS.md
+DATABASE_FIX_GUIDE.md
+LICENSE
+CHANGELOG.md
+
+# ============================================
+# Git
+# ============================================
+.git
+.gitignore
+.gitattributes
+.gitmodules
+
+# ============================================
+# Python cache and compiled files
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ============================================
+# Virtual environments
+# ============================================
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ============================================
+# IDE and editor config
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Test and coverage reports
+# ============================================
+.pytest_cache/
+.coverage
+.tox/
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ============================================
+# Log files (mounted via volume)
+# ============================================
+*.log
+logs/
+
+# ============================================
+# Cache files (mounted via volume)
+# ============================================
+cache/
+*_signal_cache.json
+*_last_processed_signal.txt
+# Note: use !filename.json to un-ignore specific JSON config files if needed
+
+# ============================================
+# Environment variables and sensitive config
+# ============================================
+.env
+.env.*
+.env.local
+.env.production
+config.yaml
+config_futures.local.yaml
+
+# ============================================
+# Docker files (avoid recursive inclusion)
+# ============================================
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
+.dockerignore
+
+# ============================================
+# CI/CD config
+# ============================================
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# ============================================
+# Claude Code config
+# ============================================
+.claude/
+
+# ============================================
+# Database files
+# ============================================
+*.sql
+*.sqlite
+*.db
+backups/
+
+# ============================================
+# Nginx config (mounted via volume)
+# ============================================
+nginx/
+
+# ============================================
+# Temp files and backups
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+
+# ============================================
+# Deployment and maintenance scripts
+# ============================================
+update.sh
+deploy.sh
+scripts/deploy_all_signals.sh
+scripts/verify_all_symbols.sh
+
+# ============================================
+# Development tool config
+# ============================================
+.editorconfig
+.pylintrc
+.flake8
+.isort.cfg
+pyproject.toml
+setup.py
+setup.cfg

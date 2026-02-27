@@ -1,0 +1,57 @@
+# Local configuration override example file
+#
+# Purpose: Server-specific config that overrides defaults in config_futures.yaml
+# Usage:
+#   1. Copy this file to config_futures.local.yaml
+#   2. Modify the config keys you want to override
+#   3. This file is not tracked by Git and will not affect code updates
+#
+# Notes:
+#   - Only write the keys you want to override, no need to copy the full config
+#   - Deep merge: nested dicts are merged automatically, not fully overwritten
+#   - Local config takes priority over default config
+
+# ============================================
+# Example 1: Enable Trump policy integration (server-specific feature)
+# ============================================
+policy_integration:
+  enabled: true
+
+# ============================================
+# Example 2: Override confidence threshold for specific symbols
+# ============================================
+# symbols:
+#   ETH:
+#     confidence_threshold: 85  # overrides default 83
+#   SOL:
+#     confidence_threshold: 84  # overrides default 82
+
+# ============================================
+# Example 3: Adjust signal push settings (can be relaxed in test env)
+# ============================================
+# signal:
+#   max_signals_per_day: 5      # overrides default 3
+#   min_interval_hours: 2       # overrides default 4 hours
+
+# ============================================
+# Example 4: Override position config
+# ============================================
+# symbols:
+#   ETH:
+#     position:
+#       base_percentage: 20     # overrides default 15%
+#       max_percentage: 35      # overrides default 30%
+
+# ============================================
+# Example 5: Temporarily disable email notifications (for debugging)
+# ============================================
+# email:
+#   enabled: false
+
+# ============================================
+# Common use cases
+# ============================================
+# 1. Production: enable Trump policy monitoring
+# 2. Test env: relax push limits
+# 3. High volatility: lower confidence threshold
+# 4. Specific strategy: adjust position percentages

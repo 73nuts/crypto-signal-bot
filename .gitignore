@@ -1,0 +1,111 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+signal_log.txt
+demo_log.txt
+eth_signal_log.txt
+sol_signal_log.txt
+*_signal_log.txt
+
+# Data files
+*.json
+!src/telegram/i18n/*.json
+*.csv
+*.xlsx
+/data/
+
+# Config (legacy single symbol config)
+config.yaml
+
+# Environment variables (contains sensitive information)
+.env
+.env.*
+
+# Local configuration overrides (server-specific, not tracked)
+config_futures.local.yaml
+*.local.yaml
+
+# Temporary files
+temp_*
+test_temp_*
+test_demo_*
+*_temp.py
+*_test.py
+SERVER_COMMANDS.txt
+deploy_isolated_*.sh
+docker-compose.isolated.yml
+config_adjustment_history.json
+交易.md
+
+# Allow core test scripts
+!test_dynamic_system.py
+
+# Local testing scripts (bypass proxy)
+test_futures_api.py
+test_no_proxy.py
+
+# Cache files
+signal_cache.json
+eth_signal_cache.json
+sol_signal_cache.json
+*_signal_cache.json
+
+# Documentation artifacts
+*.md~backtest_cache/
+
+# Local files
+work.js
+log.txt
+record.txt
+
+# Reference code (not to be committed)
+eth_simple_signal-refactor-modular/
+nofx-dev/
+
+# Reports (auto-generated, tracked via .gitkeep)
+reports/**/*.md
+!reports/**/.gitkeep
+reports/*.html
+data/parquet/
+data/processed/*.parquet
+site/
+
+# Docker volume data (auto-created, should not be tracked)
+redis_data/

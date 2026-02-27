@@ -1,0 +1,137 @@
+# 简体中文语言包
+# Language: zh_CN (Simplified Chinese)
+
+# 状态值翻译
+status:
+  # 布林带状态
+  oversold: "超卖区"
+  overbought: "超买区"
+  neutral: "中性区"
+
+  # OBV趋势
+  inflow: "流入"
+  outflow: "流出"
+
+  # CMF压力
+  strong_buy: "强买压"
+  buy: "买压"
+  strong_sell: "强卖压"
+  sell: "卖压"
+
+  # 大户情绪
+  BULLISH: "看多"
+  BEARISH: "看空"
+  NEUTRAL: "中性"
+  UNKNOWN: "未知"
+
+  # 资金费率情绪
+  bullish: "多头主导"
+  bearish: "空头主导"
+
+  # OI趋势
+  increasing: "增仓"
+  decreasing: "减仓"
+  stable: "稳定"
+
+  # 爆仓信号
+  long_squeeze: "多头爆仓"
+  short_squeeze: "空头爆仓"
+  balanced: "均衡"
+
+  # 通用
+  na: "暂无"
+
+# 操作类型
+action:
+  LONG: "做多"
+  SHORT: "做空"
+  SELL: "减仓"
+
+# 指标标签
+indicator:
+  # 趋势指标
+  bollinger:
+    title: "布林带"
+    upper: "上轨"
+    middle: "中轨"
+    lower: "下轨"
+    distance_upper: "距上轨"
+    distance_lower: "距下轨"
+    position: "当前位置"
+
+  obv:
+    title: "OBV资金流"
+    current: "当前值"
+    change_5d: "5日变化"
+    trend: "资金趋势"
+
+  cmf:
+    title: "CMF资金流"
+    value: "CMF值"
+    pressure: "买卖压力"
+
+  orderbook:
+    title: "订单簿深度"
+    bid_ask_ratio: "买卖力量比"
+    large_walls: "大单墙"
+
+  top_trader:
+    title: "大户情绪"
+    position_ratio: "持仓多空比"
+    sentiment: "情绪"
+
+  # 日内指标
+  funding_rate:
+    title: "资金费率"
+    current: "当前费率"
+    sentiment: "市场情绪"
+
+  open_interest:
+    title: "持仓量OI"
+    current: "当前OI"
+    change_5m: "5分钟变化"
+    trend: "持仓趋势"
+
+  liquidation:
+    title: "爆仓数据"
+    long_pct: "多头爆仓"
+    short_pct: "空头爆仓"
+    signal: "爆仓信号"
+
+  tick:
+    title: "Tick级大单"
+    count: "大单数量"
+    buy_pressure: "买压"
+    sell_pressure: "卖压"
+    unit: "笔"
+
+# 格式化模板
+format:
+  # 数值单位
+  percent: "{value}%"
+  count: "{value}笔"
+
+  # 分隔符
+  separator: "  |  "
+
+# 时间相关
+time:
+  date_format: "%Y年%m月%d日"
+
+# 市场环境
+market:
+  regime:
+    BULL_TREND: "上涨趋势"
+    BEAR_TREND: "下跌趋势"
+    HIGH_VOLATILITY: "高波动"
+    LOW_VOLATILITY: "低波动"
+    NEUTRAL: "震荡"
+    STRONG_SIDEWAYS: "强势横盘"
+
+# 趋势等级
+trend:
+  STRONG_UP: "强上升趋势"
+  WEAK_UP: "弱上升趋势"
+  SIDEWAYS: "横盘震荡"
+  WEAK_DOWN: "弱下降趋势"
+  STRONG_DOWN: "强下降趋势"
