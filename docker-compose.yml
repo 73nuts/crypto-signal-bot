@@ -1,0 +1,609 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # Trump policy listener service (optional, requires env vars)
+  # ============================================
+  # Listens for Trump policy events on ETH
+  policy-eth:
+    build: .
+    image: ignis/policy
+    container_name: ${CONTAINER_PREFIX:-}policy_eth
+    restart: unless-stopped
+    profiles: ["policy"]  # Only runs when profile is enabled
+
+    # Load environment variable file
+    env_file:
+      - .env
+
+    # Mount config and logs
+    volumes:
+      - ./config_futures.yaml:/app/config_futures.yaml
+      - ./logs:/app/logs
+
+    # DNS config (fixes Binance API domain resolution)
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+      - 1.1.1.1
+
+    # Environment variables
+    environment:
+      - TZ=Asia/Shanghai
+      - PYTHONUNBUFFERED=1
+      - SYMBOL=ETH
+      - ENABLE_POLICY_INTEGRATION=true
+      - PORT=8081
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=crypto_signals
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+    # Start command - Gunicorn production server (2 worker processes, 120s timeout)
+    command: ["gunicorn", "-w", "2", "-b", "0.0.0.0:8081", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "scripts.webhook_gunicorn:app"]
+
+    # Logging config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+
+    # Join two networks: default (access mysql) and webhook_network (accessed by nginx)
+    networks:
+      - default
+      - webhook_network
+
+  # Listens for Trump policy events on SOL
+  policy-sol:
+    build: .
+    image: ignis/policy
+    container_name: ${CONTAINER_PREFIX:-}policy_sol
+    restart: unless-stopped
+    profiles: ["policy"]  # Only runs when profile is enabled
+
+    # Load environment variable file
+    env_file:
+      - .env
+
+    # Mount config and logs
+    volumes:
+      - ./config_futures.yaml:/app/config_futures.yaml
+      - ./logs:/app/logs
+
+    # DNS config (fixes Binance API domain resolution)
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+      - 1.1.1.1
+
+    # Environment variables
+    environment:
+      - TZ=Asia/Shanghai
+      - PYTHONUNBUFFERED=1
+      - SYMBOL=SOL
+      - ENABLE_POLICY_INTEGRATION=true
+      - PORT=8082
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=crypto_signals
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+    # Start command - Gunicorn production server (2 worker processes, 120s timeout)
+    command: ["gunicorn", "-w", "2", "-b", "0.0.0.0:8082", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "scripts.webhook_gunicorn:app"]
+
+    # Logging config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+
+    # Join two networks: default (access mysql) and webhook_network (accessed by nginx)
+    networks:
+      - default
+      - webhook_network
+
+  # ============================================
+  # Nginx reverse proxy (webhook security layer)
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: ${CONTAINER_PREFIX:-}nginx
+    restart: unless-stopped
+    profiles: ["policy"]  # Starts together with policy-monitor-eth
+
+    # Expose port 8081 for webhook
+    ports:
+      - "8081:8080"
+
+    # Mount Nginx config
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/logs:/var/log/nginx
+
+    # Depends on policy services
+    depends_on:
+      - policy-eth
+      - policy-sol
+
+    # Join webhook network (same network as backend for service-name access)
+    networks:
+      - webhook_network
+
+    # Logging config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: '0.25'
+        reservations:
+          memory: 32M
+          cpus: '0.1'
+
+    # Health check (uses wget to probe /health endpoint)
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ============================================
+  # MySQL database (signal storage)
+  # ============================================
+  mysql:
+    image: mysql:8.0
+    container_name: ${CONTAINER_PREFIX:-}mysql
+    restart: unless-stopped
+
+    # Character set config (prevents garbled characters in comments)
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --character-set-client-handshake=FALSE
+
+    # Load environment variables
+    env_file:
+      - .env
+
+    # Environment variables
+    environment:
+      - TZ=Asia/Shanghai
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=crypto_signals
+
+    # Bind port to localhost (secure: access via SSH tunnel)
+    ports:
+      - "127.0.0.1:3307:3306"
+
+    # Data persistence
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+    # Logging config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ============================================
+  # MySQL auto-backup service
+  # Only runs in production profile: docker-compose --profile production up -d
+  # ============================================
+  mysql-backup:
+    image: mysql:8.0
+    container_name: ${CONTAINER_PREFIX:-}mysql_backup
+    restart: unless-stopped
+    profiles: ["production"]
+
+    # Load environment variables
+    env_file:
+      - .env
+
+    # Depends on MySQL service
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    # Mount backup script and data directory
+    volumes:
+      - ./scripts/database/mysql_backup.sh:/usr/local/bin/mysql_backup.sh:ro
+      - ./data/backups:/data/backups
+
+    # Environment variables
+    environment:
+      - TZ=Asia/Shanghai
+      - MYSQL_HOST=mysql
+      - MYSQL_DATABASE=crypto_signals
+      - MYSQL_USER=root
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+    # Start command: run backup at 3 AM daily (while loop simulating cron)
+    command: >
+      bash -c "
+      while true; do
+        current_hour=$$(date +%H);
+        current_min=$$(date +%M);
+        if [ \"$$current_hour\" = \"03\" ] && [ \"$$current_min\" = \"00\" ]; then
+          /usr/local/bin/mysql_backup.sh >> /data/backups/backup.log 2>&1;
+          sleep 3600;
+        else
+          sleep 60;
+        fi
+      done
+      "
+
+    # Logging config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.25'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "test", "-d", "/data/backups"]
+      interval: 1h
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ============================================
+  # Redis cache
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: ${CONTAINER_PREFIX:-}redis
+    restart: unless-stopped
+    # Bind port to localhost (secure: internal container access only)
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - ./redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: '0.1'
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================
+  # Swing strategy scheduler
+  # ============================================
+
+  # Swing strategy - runs daily at UTC 00:01
+  swing:
+    build: .
+    image: ignis/swing
+    container_name: ${CONTAINER_PREFIX:-}swing
+    restart: unless-stopped
+
+    # Load environment variable files
+    env_file:
+      - .env
+      - .env.telegram
+
+    # Depends on MySQL service
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    # Mount config, logs, and data
+    volumes:
+      - ./config_futures.yaml:/app/config_futures.yaml:ro
+      - ./logs:/app/logs
+      - ./data:/app/data:ro
+
+    # Environment variables
+    environment:
+      - TZ=Asia/Shanghai
+      - PYTHONUNBUFFERED=1
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=crypto_signals
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+    # Start command (execution mode: auto-trading, testnet)
+    command: ["python", "-m", "src.strategies.swing.scheduler", "--execute", "--testnet"]
+
+    # Logging config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+
+    # Health check (verifies Python process is running)
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ============================================
+  # Scanner intelligence scanner
+  # ============================================
+  scanner:
+    build: .
+    image: ignis/scanner
+    container_name: ${CONTAINER_PREFIX:-}scanner
+    restart: unless-stopped
+
+    # Load environment variable files
+    env_file:
+      - .env
+      - .env.telegram
+
+    # Depends on Redis (price cache) and MySQL (signal storage)
+    depends_on:
+      redis:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+
+    # Mount logs
+    volumes:
+      - ./logs:/app/logs
+
+    # DNS config
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+
+    # Environment variables
+    environment:
+      - TZ=Asia/Shanghai
+      - PYTHONUNBUFFERED=1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=crypto_signals
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+    # Start command
+    command: ["python", "-m", "src.scanner.scheduler"]
+
+    # Logging config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+
+    # Health check (verifies Python process is running)
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ============================================
+  # Telegram VIP system
+  # ============================================
+
+  # Telegram Bot - user interaction service
+  tg-bot:
+    build: .
+    image: ignis/tg-bot
+    container_name: ${CONTAINER_PREFIX:-}tg_bot
+    restart: unless-stopped
+    # profiles removed; starts by default
+
+    # Load environment variable files (system-level + Telegram business-level)
+    env_file:
+      - .env
+      - .env.telegram
+
+    # Depends on MySQL service
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    # Mount config, logs, and scripts
+    volumes:
+      - ./config_futures.yaml:/app/config_futures.yaml:ro
+      - ./logs:/app/logs
+      - ./scripts:/app/scripts:ro
+
+    # Environment variables
+    environment:
+      - TZ=Asia/Shanghai
+      - PYTHONUNBUFFERED=1
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=crypto_signals
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+    # Telegram bot using aiogram 3.x
+    command: ["python", "-m", "src.telegram.bot_v2.main"]
+
+    # Logging config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+
+    # Health check (verifies Python process is running)
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Telegram Payment - payment listener service
+  tg-payment:
+    build: .
+    image: ignis/tg-payment
+    container_name: ${CONTAINER_PREFIX:-}tg_payment
+    restart: unless-stopped
+    # profiles removed; starts by default
+
+    # Load environment variable files (system-level + Telegram business-level)
+    env_file:
+      - .env
+      - .env.telegram
+
+    # Depends on MySQL service
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    # Mount config, logs, and scripts
+    volumes:
+      - ./config_futures.yaml:/app/config_futures.yaml:ro
+      - ./logs:/app/logs
+      - ./scripts:/app/scripts:ro
+
+    # Environment variables
+    environment:
+      - TZ=Asia/Shanghai
+      - PYTHONUNBUFFERED=1
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=crypto_signals
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+    # Start command
+    command: ["python", "-m", "src.telegram.payment.service_runner"]
+
+    # Logging config
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+
+    # Health check (verifies Python process is running)
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+# Network configuration
+networks:
+  default:
+    name: crypto_signal_ignis_network
+    driver: bridge
+
+  # Dedicated webhook network (isolated)
+  webhook_network:
+    name: ignis_webhook_network
+    driver: bridge

@@ -1,0 +1,112 @@
+# Auto-generated from pyproject.toml. Do not edit manually. Regenerate with: pip compile pyproject.toml -o requirements.lock
+# Crypto Futures Signal System - Locked Dependencies
+#
+# These are tested exact versions, guaranteeing reproducible builds
+# Generated: 2026-01-27
+# Python version: 3.8+
+#
+# Usage:
+#   pip install -r requirements.lock
+
+# Core data processing
+pandas==2.1.4
+numpy==1.26.4
+
+# Exchange API
+ccxt==4.5.5
+python-binance==1.0.22
+
+# HTTP client
+requests==2.32.4
+
+# Config file parsing
+PyYAML==6.0.1
+
+# Config management (Pydantic v2)
+pydantic==2.11.5
+pydantic-settings==2.7.0
+pydantic-core==2.33.2
+
+# Task scheduling
+schedule==1.2.2
+
+# ============================================
+# Trump Policy Integration (optional)
+# ============================================
+httpx==0.28.1
+python-dotenv==1.0.1
+Flask==3.1.1
+gunicorn==21.2.0
+
+# ============================================
+# Dashboard System
+# ============================================
+pymysql==1.1.0
+DBUtils==3.1.0
+flask-cors==6.0.1
+Flask-Limiter==4.0.0
+
+# ============================================
+# Realtime Event-Driven Architecture (v3.2)
+# ============================================
+redis==5.0.1
+
+# File lock (prevent concurrent cache write conflicts)
+filelock==3.20.3
+
+# ============================================
+# Telegram VIP System
+# ============================================
+# Telegram Bot framework (aiogram 3.x)
+aiogram==3.23.0
+# HD wallet (BIP44 address derivation)
+bip_utils==2.9.3
+# BSC chain interaction
+web3==7.6.0
+# QR code generation
+qrcode==8.0
+Pillow==11.0.0
+
+# Flask dependencies (auto-installed, listed for completeness)
+Werkzeug==3.1.5
+Jinja2==3.1.4
+click==8.1.8
+itsdangerous==2.2.0
+MarkupSafe==3.0.2
+blinker==1.9.0
+
+# httpx dependencies
+httpcore==1.0.9
+h11==0.16.0
+certifi==2024.12.14
+idna==3.10
+sniffio==1.3.1
+anyio==4.9.0
+
+# Other transitive dependencies
+python-dateutil==2.9.0.post0
+pytz==2024.2
+tzdata==2024.2
+six==1.17.0
+charset-normalizer==3.4.0
+urllib3==2.6.3
+aiohappyeyeballs==2.6.1
+aiohttp==3.13.3
+multidict==6.6.4
+yarl==1.20.1
+aiosignal==1.4.0
+frozenlist==1.7.0
+propcache==0.3.2
+attrs==24.3.0
+async-timeout==5.0.1
+cryptography==44.0.0
+cffi==1.17.1
+pycparser==2.22
+
+# aiogram dependencies
+magic-filter==1.0.12
+
+# Modern architecture dependencies
+cashews==7.3.2
+bubus==1.5.0
+structlog==24.4.0

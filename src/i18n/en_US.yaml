@@ -1,0 +1,137 @@
+# English Language Pack
+# Language: en_US (US English)
+
+# Status translations
+status:
+  # Bollinger Bands status
+  oversold: "Oversold"
+  overbought: "Overbought"
+  neutral: "Neutral"
+
+  # OBV trend
+  inflow: "Inflow"
+  outflow: "Outflow"
+
+  # CMF pressure
+  strong_buy: "Strong Buy"
+  buy: "Buy"
+  strong_sell: "Strong Sell"
+  sell: "Sell"
+
+  # Top trader sentiment
+  BULLISH: "Bullish"
+  BEARISH: "Bearish"
+  NEUTRAL: "Neutral"
+  UNKNOWN: "Unknown"
+
+  # Funding rate sentiment
+  bullish: "Long Dominant"
+  bearish: "Short Dominant"
+
+  # OI trend
+  increasing: "Increasing"
+  decreasing: "Decreasing"
+  stable: "Stable"
+
+  # Liquidation signal
+  long_squeeze: "Long Squeeze"
+  short_squeeze: "Short Squeeze"
+  balanced: "Balanced"
+
+  # General
+  na: "N/A"
+
+# Action types
+action:
+  LONG: "Long"
+  SHORT: "Short"
+  SELL: "Reduce"
+
+# Indicator labels
+indicator:
+  # Trend indicators
+  bollinger:
+    title: "Bollinger Bands"
+    upper: "Upper"
+    middle: "Middle"
+    lower: "Lower"
+    distance_upper: "Dist Upper"
+    distance_lower: "Dist Lower"
+    position: "Position"
+
+  obv:
+    title: "OBV Flow"
+    current: "Current"
+    change_5d: "5D Change"
+    trend: "Trend"
+
+  cmf:
+    title: "CMF Flow"
+    value: "CMF"
+    pressure: "Pressure"
+
+  orderbook:
+    title: "Order Book"
+    bid_ask_ratio: "Bid/Ask Ratio"
+    large_walls: "Large Walls"
+
+  top_trader:
+    title: "Top Traders"
+    position_ratio: "Long/Short Ratio"
+    sentiment: "Sentiment"
+
+  # Intraday indicators
+  funding_rate:
+    title: "Funding Rate"
+    current: "Current"
+    sentiment: "Sentiment"
+
+  open_interest:
+    title: "Open Interest"
+    current: "Current OI"
+    change_5m: "5m Change"
+    trend: "Trend"
+
+  liquidation:
+    title: "Liquidations"
+    long_pct: "Long Liq"
+    short_pct: "Short Liq"
+    signal: "Signal"
+
+  tick:
+    title: "Large Orders"
+    count: "Count"
+    buy_pressure: "Buy"
+    sell_pressure: "Sell"
+    unit: ""
+
+# Format templates
+format:
+  # Value units
+  percent: "{value}%"
+  count: "{value}"
+
+  # Separator
+  separator: "  |  "
+
+# Time related
+time:
+  date_format: "%Y-%m-%d"
+
+# Market environment
+market:
+  regime:
+    BULL_TREND: "Bull Trend"
+    BEAR_TREND: "Bear Trend"
+    HIGH_VOLATILITY: "High Volatility"
+    LOW_VOLATILITY: "Low Volatility"
+    NEUTRAL: "Ranging"
+    STRONG_SIDEWAYS: "Strong Sideways"
+
+# Trend levels
+trend:
+  STRONG_UP: "Strong Uptrend"
+  WEAK_UP: "Weak Uptrend"
+  SIDEWAYS: "Sideways"
+  WEAK_DOWN: "Weak Downtrend"
+  STRONG_DOWN: "Strong Downtrend"
